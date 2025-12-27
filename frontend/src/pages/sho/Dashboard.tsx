@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { FileText, FolderOpen, Clock, CheckCircle, AlertTriangle, BarChart3, Upload, Users, Shield, Bell } from 'lucide-react';
-import { getCases, getFIRs, getNotifications } from '../../utils/localStorage';
+import { getCases, getFIRs, getNotifications, updateCase, addAuditLog } from '../../utils/localStorage';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { Case } from '../../types';
 import StatusBadge from '../../components/UI/StatusBadge';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const rolePath = user?.role === 'court_clerk' ? 'clerk' : user?.role || 'sho';
-  const cases = getCases();
+  const [cases, setCases] = useState<Case[]>(() => getCases());
+  const refreshCases = () => setCases(getCases());
+
+  const handleApproveFromDashboard = (caseId: string) => {
+    updateCase(caseId, { status: 'approved_by_sho' });
+    addAuditLog({ action: 'APPROVED_BY_SHO', resource: 'CASE', resourceId: caseId, details: {} });
+    toast.success('Approved');
+    refreshCases();
+  };
   const firs = getFIRs();
   const notifications = getNotifications().filter(n => n.userId === user?.id || !n.userId);
 
@@ -161,7 +171,14 @@ const Dashboard: React.FC = () => {
                     <h4 className="text-sm font-medium text-white">{case_.title}</h4>
                     <p className="text-xs text-gray-400">{case_.caseNumber}</p>
                   </div>
-                  <StatusBadge status={case_.status} />
+                  <div className="flex items-center space-x-2">
+                    <StatusBadge status={case_.status} />
+                    {user?.role === 'sho' && case_.status === 'submitted_to_sho' && (
+                      <button onClick={() => handleApproveFromDashboard(case_.id)} className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-green-600 text-white hover:bg-green-700">
+                        Approve
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             ) : (

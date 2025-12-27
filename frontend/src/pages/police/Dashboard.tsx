@@ -1,14 +1,24 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { FileText, FolderOpen, Clock, CheckCircle, AlertTriangle, BarChart3, Upload, Users, Shield, Bell } from 'lucide-react';
-import { getCases, getFIRs, getNotifications } from '../../utils/localStorage';
+import { getCases, getFIRs, getNotifications, updateCase, addAuditLog } from '../../utils/localStorage';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import StatusBadge from '../../components/UI/StatusBadge';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const rolePath = user?.role === 'court_clerk' ? 'clerk' : user?.role || 'police';
-  const cases = getCases();
+  const [cases, setCases] = useState(() => getCases());
+  const refreshCases = () => setCases(getCases());
+
+  const handleSubmitFromDashboard = (caseId: string) => {
+    updateCase(caseId, { status: 'submitted_to_sho' });
+    addAuditLog({ action: 'SUBMIT_TO_SHO', resource: 'CASE', resourceId: caseId, details: {} });
+    toast.success('Submitted to SHO');
+    refreshCases();
+  };
   const firs = getFIRs();
   const notifications = getNotifications().filter(n => n.userId === user?.id || !n.userId);
 
@@ -161,7 +171,14 @@ const Dashboard: React.FC = () => {
                     <h4 className="text-sm font-medium text-white">{case_.title}</h4>
                     <p className="text-xs text-gray-400">{case_.caseNumber}</p>
                   </div>
-                  <StatusBadge status={case_.status} />
+                  <div className="flex items-center space-x-2">
+                    <StatusBadge status={case_.status} />
+                    {user?.role === 'police' && case_.status === 'preparing' && (
+                      <button onClick={() => handleSubmitFromDashboard(case_.id)} className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700">
+                        Submit
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             ) : (
