@@ -2,8 +2,9 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import { getMyCases, getAllCases, getCaseById, assignCase, completeInvestigation } from './case.controller';
 import { archiveCase } from './case-archive.controller';
+import { judicialCloseCase, canCloseCase } from './judicial-closure.controller';
 import { authenticate } from '../../middleware/auth.middleware';
-import { isPolice, requireRole, isSHO, allowAll } from '../../middleware/role.middleware';
+import { isPolice, requireRole, isSHO, allowAll, isJudge } from '../../middleware/role.middleware';
 import { validate } from '../../middleware/validation.middleware';
 import { UserRole } from '@prisma/client';
 
@@ -64,6 +65,29 @@ router.post(
   authenticate,
   requireRole(UserRole.SHO, UserRole.JUDGE),
   archiveCase
+);
+
+/**
+ * POST /api/cases/:caseId/judicial-close
+ * Judicial case closure - JUDGE only
+ * Archives case and auto-generates closure report
+ */
+router.post(
+  '/:caseId/judicial-close',
+  authenticate,
+  isJudge,
+  judicialCloseCase
+);
+
+/**
+ * GET /api/cases/:caseId/can-close
+ * Check if case can be closed - JUDGE only
+ */
+router.get(
+  '/:caseId/can-close',
+  authenticate,
+  isJudge,
+  canCloseCase
 );
 
 export default router;

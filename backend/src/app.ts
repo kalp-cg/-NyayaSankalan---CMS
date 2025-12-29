@@ -13,6 +13,8 @@ import auditRoutes from './modules/audit/audit.routes';
 import documentRequestRoutes from './modules/document-requests/document-requests.routes';
 import caseReopenRoutes from './modules/case-reopen/case-reopen.routes';
 import timelineRoutes from './modules/timeline/timeline.routes';
+import searchRoutes from './modules/search/search.routes';
+import closureReportRoutes from './modules/closure-report/closure-report.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { ApiError } from './utils/ApiError';
 import { validateCloudinaryConfig } from './config/cloudinary';
@@ -83,6 +85,8 @@ export const createApp = (): Application => {
   app.use('/api/document-requests', documentRequestRoutes); // /api/document-requests
   app.use('/api', caseReopenRoutes);
   app.use('/api', timelineRoutes); // /api/cases/:caseId/timeline
+  app.use('/api/search', searchRoutes); // /api/search?q=query
+  app.use('/api', closureReportRoutes); // /api/cases/:caseId/closure-report
 
   // 404 handler
   app.use((req, res, next) => {

@@ -10,6 +10,7 @@ import { Loader } from '../../components/common/Loader';
 import { ErrorMessage } from '../../components/common/ErrorMessage';
 import { EmptyState } from '../../components/common/EmptyState';
 import { CaseTimeline } from '../../components/case/CaseTimeline';
+import { ClosureReportButton } from '../../components/case/ClosureReportButton';
 import { caseApi, courtApi } from '../../api';
 import type { Case, CourtAction } from '../../types/api.types';
 import { CaseState } from '../../types/api.types';
@@ -99,6 +100,11 @@ export const CourtCaseDetails: React.FC = () => {
             </div>
           </div>
         </Card>
+
+        {/* Closure Report - Only for ARCHIVED cases */}
+        {currentState === CaseState.ARCHIVED && (
+          <ClosureReportButton caseId={id!} isArchived={true} />
+        )}
 
         {/* FIR Details */}
         {fir && (

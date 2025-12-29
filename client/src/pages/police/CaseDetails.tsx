@@ -17,6 +17,7 @@ import type { Case, DocumentRequest } from '../../types/api.types';
 import { CaseState, EvidenceCategory, AccusedStatus } from '../../types/api.types';
 import { getCaseStateBadgeVariant, getCaseStateLabel } from '../../utils/caseState';
 import { CaseTimeline } from '../../components/case/CaseTimeline';
+import { ClosureReportButton } from '../../components/case/ClosureReportButton';
 
 export const PoliceCaseDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -342,6 +343,11 @@ export const PoliceCaseDetails: React.FC = () => {
             </div>
           </div>
         </Card>
+
+        {/* Closure Report - Only for ARCHIVED cases */}
+        {currentState === CaseState.ARCHIVED && (
+          <ClosureReportButton caseId={id!} isArchived={true} />
+        )}
 
         {/* Timeline */}
         <Card title="Timeline">

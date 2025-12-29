@@ -11,6 +11,7 @@ import { Loader } from '../../components/common/Loader';
 import { ErrorMessage } from '../../components/common/ErrorMessage';
 import { EmptyState } from '../../components/common/EmptyState';
 import { CaseTimeline } from '../../components/case/CaseTimeline';
+import { ClosureReportButton } from '../../components/case/ClosureReportButton';
 import { caseApi, courtApi } from '../../api';
 import type { Case, CourtAction } from '../../types/api.types';
 import { CaseState, CourtActionType } from '../../types/api.types';
@@ -22,6 +23,7 @@ export const JudgeCaseDetails: React.FC = () => {
   const [courtActions, setCourtActions] = useState<CourtAction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Court action form state
@@ -67,6 +69,27 @@ export const JudgeCaseDetails: React.FC = () => {
     }
   };
 
+  const handleCloseCase = async () => {
+    if (!confirm('Are you sure you want to close this case? This action will:\n\n• Archive the case permanently\n• Generate the official closure report\n• Make the case read-only\n\nThis action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setIsClosing(true);
+      const result = await caseApi.judicialCloseCase(id!);
+      toast.success('Case closed successfully. Closure report generated.');
+      if (result.closureReportUrl) {
+        // Open the report in a new tab
+        window.open(result.closureReportUrl, '_blank');
+      }
+      fetchData(); // Refresh data to show archived state
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to close case');
+    } finally {
+      setIsClosing(false);
+    }
+  };
+
   if (isLoading) return <Loader />;
   if (error) return <ErrorMessage message={error} retry={fetchData} />;
   if (!caseData) return <ErrorMessage message="Case not found" />;
@@ -76,6 +99,15 @@ export const JudgeCaseDetails: React.FC = () => {
 
   // Judge can record actions on court-accepted or trial-ongoing cases
   const canRecordAction = isInCourt(currentState);
+
+  // Judge can close cases that are in closable states (not already archived)
+  const closableStates = [
+    CaseState.DISPOSED,
+    CaseState.JUDGMENT_RESERVED,
+    CaseState.TRIAL_ONGOING,
+    CaseState.COURT_ACCEPTED,
+  ];
+  const canCloseCase = closableStates.includes(currentState as CaseState);
 
   const getActionBadgeVariant = (actionType: string) => {
     switch (actionType) {
@@ -121,6 +153,11 @@ export const JudgeCaseDetails: React.FC = () => {
             </div>
           </div>
         </Card>
+
+        {/* Closure Report - Only for ARCHIVED cases */}
+        {currentState === CaseState.ARCHIVED && (
+          <ClosureReportButton caseId={id!} isArchived={true} />
+        )}
 
         {/* FIR Details */}
         {fir && (
@@ -214,6 +251,48 @@ export const JudgeCaseDetails: React.FC = () => {
               >
                 Record Action
               </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Judicial Case Closure - Only for Judge, only for closable cases */}
+        {canCloseCase && (
+          <Card title="Judicial Case Closure">
+            <div className="space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <svg className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div>
+                    <p className="text-amber-800 font-medium">Close Case Permanently</p>
+                    <p className="text-amber-700 text-sm mt-1">
+                      Closing this case will:
+                    </p>
+                    <ul className="text-amber-700 text-sm mt-2 list-disc list-inside space-y-1">
+                      <li>Archive the case permanently</li>
+                      <li>Generate the official Case Closure Report (PDF)</li>
+                      <li>Make the case read-only for all users</li>
+                    </ul>
+                    <p className="text-amber-700 text-sm mt-2 font-medium">
+                      This action cannot be undone.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  variant="danger"
+                  onClick={handleCloseCase}
+                  isLoading={isClosing}
+                  className="flex items-center gap-2"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Close Case & Generate Report
+                </Button>
+              </div>
             </div>
           </Card>
         )}

@@ -80,4 +80,26 @@ export const caseApi = {
     const response = await apiClient.get<ApiResponse<CasesResponse>>('/cases/all', { params: { page, limit } });
     return response.data.data || { cases: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } };
   },
+
+  /**
+   * POST /api/cases/:caseId/judicial-close
+   * Judicial case closure (JUDGE only) - Archives and generates closure report
+   */
+  judicialCloseCase: async (caseId: string): Promise<{ caseId: string; archived: boolean; closureReportUrl: string | null }> => {
+    const response = await apiClient.post<ApiResponse<{ caseId: string; archived: boolean; closureReportUrl: string | null }>>(
+      `/cases/${caseId}/judicial-close`
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * GET /api/cases/:caseId/can-close
+   * Check if case can be closed by judge
+   */
+  canCloseCase: async (caseId: string): Promise<{ canClose: boolean; reason?: string }> => {
+    const response = await apiClient.get<ApiResponse<{ canClose: boolean; reason?: string }>>(
+      `/cases/${caseId}/can-close`
+    );
+    return response.data.data || { canClose: false };
+  },
 };

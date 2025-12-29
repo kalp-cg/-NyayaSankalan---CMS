@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types/api.types';
 import { NotificationBell } from '../common/NotificationBell';
+import { SearchBar } from '../common/SearchBar';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -45,6 +46,11 @@ export const Navbar: React.FC = () => {
 
           {user && (
             <div className="flex items-center space-x-4">
+              {/* Global Search */}
+              <div className="hidden md:block">
+                <SearchBar />
+              </div>
+
               <div className="text-sm">
                 <p className="font-medium text-gray-900">{user.name}</p>
                 <p className="text-gray-500">{user.role.replace('_', ' ')}</p>
