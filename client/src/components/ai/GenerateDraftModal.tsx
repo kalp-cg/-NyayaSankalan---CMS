@@ -77,20 +77,22 @@ export const GenerateDraftModal: React.FC<GenerateDraftModalProps> = ({ caseId, 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-xl font-semibold">AI-Assisted Draft — Review Before Saving</h3>
-            <p className="text-sm text-gray-600 mt-1">No auto-save. You remain in control.</p>
+      <div className="w-full max-w-3xl rounded-lg bg-white shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 border-b">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-semibold">AI-Assisted Draft — Review Before Saving</h3>
+              <p className="text-sm text-gray-600 mt-1">No auto-save. You remain in control.</p>
+            </div>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
+
+          <div className="mt-3 rounded-lg bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+            ⚖ <strong>Officer Review Required</strong> — Draft is system-generated and must be validated before saving.
+          </div>
         </div>
 
-        <div className="mt-3 rounded-lg bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
-          ⚖ <strong>Officer Review Required</strong> — Draft is system-generated and must be validated before saving.
-        </div>
-
-        <div className="mt-4 space-y-4">
+        <div className="p-6 space-y-4">
           <Select
             label="Document Type"
             value={documentType}
@@ -108,7 +110,7 @@ export const GenerateDraftModal: React.FC<GenerateDraftModalProps> = ({ caseId, 
 
           <div className="flex items-center gap-3">
             <Button variant="primary" onClick={handleGenerate} isLoading={isLoading}>
-              Generate Case Document Draft
+              {isLoading ? '✨ Generating draft...' : '✨ Generate Case Document Draft'}
             </Button>
             <Button variant="secondary" onClick={onClose}>
               Close

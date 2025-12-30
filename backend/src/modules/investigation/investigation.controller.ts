@@ -16,8 +16,13 @@ const investigationService = new InvestigationService();
  */
 export const createInvestigationEvent = asyncHandler(async (req: Request, res: Response) => {
   const { caseId } = req.params;
-  const userId = req.user!.id;
-  const organizationId = req.user!.organizationId;
+  
+  if (!req.user) {
+    throw ApiError.unauthorized('Authentication required');
+  }
+  
+  const userId = req.user.id;
+  const organizationId = req.user.organizationId;
 
   if (!organizationId) {
     throw ApiError.badRequest('User must be associated with a police station');
@@ -41,7 +46,12 @@ export const createInvestigationEvent = asyncHandler(async (req: Request, res: R
  */
 export const getInvestigationEvents = asyncHandler(async (req: Request, res: Response) => {
   const { caseId } = req.params;
-  const organizationId = req.user!.organizationId;
+  
+  if (!req.user) {
+    throw ApiError.unauthorized('Authentication required');
+  }
+  
+  const organizationId = req.user.organizationId;
 
   if (!organizationId) {
     throw ApiError.badRequest('User must be associated with a police station');

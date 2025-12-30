@@ -29,8 +29,12 @@ const aiService = new AIService();
  * Supports optional file upload for FIR document
  */
 export const createFIR = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const organizationId = req.user!.organizationId;
+  if (!req.user) {
+    throw ApiError.unauthorized('Authentication required');
+  }
+  
+  const userId = req.user.id;
+  const organizationId = req.user.organizationId;
 
   if (!organizationId) {
     throw ApiError.badRequest('Police officer must be associated with a police station');
@@ -56,6 +60,22 @@ export const createFIR = asyncHandler(async (req: Request, res: Response) => {
   // Log file upload
   if (req.file) {
     await logFileUpload(userId, 'FIR', fir.id, req.file.originalname);
+  }
+
+  // Best-effort: write FIR extraction to ai-poc storage and index it for demo search
+  try {
+    aiService
+      .indexFirExtraction({
+        caseId: fir.caseId,
+        firNumber: fir.firNumber,
+        sectionsApplied: fir.sectionsApplied,
+        incidentDate: fir.incidentDate,
+        policeStationName: fir.policeStation?.name,
+      })
+      .catch((err) => console.error('AI FIR indexing error (non-blocking)', err));
+  } catch (err) {
+    // Defensive guard: prevent sync errors from blocking FIR creation
+    console.error('AI FIR indexing synchronous error (ignored)', err);
   }
 
   res.status(201).json({

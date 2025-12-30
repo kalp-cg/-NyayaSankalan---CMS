@@ -168,6 +168,12 @@ async def index_single_document(extraction_id: str):
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
+@app.get('/health')
+async def health():
+    """Health check endpoint for service availability monitoring"""
+    return JSONResponse({"status": "healthy", "service": "ai-poc"})
+
+
 @app.get('/search')
 async def search(q: str = None, k: int = 5):
     """Search extractions for query text. Use GET /search?q=...&k=5"""

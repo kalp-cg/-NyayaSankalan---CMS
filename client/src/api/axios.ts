@@ -5,6 +5,9 @@ import toast from 'react-hot-toast';
 // Base API URL - points to backend server
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Flag to prevent duplicate 401 redirects
+let isRedirecting = false;
+
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -42,10 +45,13 @@ apiClient.interceptors.response.use(
       
       switch (status) {
         case 401:
-          // Unauthorized - logout user
-          localStorage.removeItem('token');
-          toast.error('Session expired. Please login again.');
-          window.location.href = '/login';
+          // Unauthorized - logout user (prevent duplicate redirects)
+          if (!isRedirecting) {
+            isRedirecting = true;
+            localStorage.removeItem('token');
+            toast.error('Session expired. Please login again.');
+            window.location.href = '/login';
+          }
           break;
           
         case 403:
