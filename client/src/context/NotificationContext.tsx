@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { caseApi } from '../api/case.api';
 import { timelineApi } from '../api/timeline.api';
@@ -18,6 +18,7 @@ const LOCAL_KEY = 'nyaya_notifications_read';
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
+  const auditLogsEnabled = (import.meta.env.VITE_FEATURE_AUDIT_LOG_NOTIFICATIONS ?? 'false') === 'true';
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [readMap, setReadMap] = useState<Record<string, boolean>>(() => {
     try {
@@ -27,6 +28,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return {};
     }
   });
+  const forbiddenCaseIdsRef = useRef<Set<string>>(new Set());
 
   const saveReadMap = (m: Record<string, boolean>) => {
     setReadMap(m);
@@ -55,11 +57,19 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   const fetchNotificationsForCases = async (caseIds: string[]) => {
+    if (!auditLogsEnabled) return;
     const items: Notification[] = [];
     await Promise.all(caseIds.map(async (caseId) => {
+      if (forbiddenCaseIdsRef.current.has(caseId)) {
+        return;
+      }
       try {
-        const logs = await timelineApi.getAuditLogs(caseId);
-        logs.forEach((l) => {
+        const result = await timelineApi.getAuditLogs(caseId);
+        if (result.forbidden) {
+          forbiddenCaseIdsRef.current.add(caseId);
+          return;
+        }
+        result.logs.forEach((l) => {
           const n = mapAuditToNotification(l, caseId);
           if (n) items.push(n);
         });

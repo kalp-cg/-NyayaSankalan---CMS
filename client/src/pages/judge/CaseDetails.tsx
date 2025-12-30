@@ -7,12 +7,14 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Select } from '../../components/ui/Select';
 import { Input } from '../../components/ui/Input';
+import { Textarea } from '../../components/ui/Textarea';
 import { Loader } from '../../components/common/Loader';
 import { ErrorMessage } from '../../components/common/ErrorMessage';
 import { EmptyState } from '../../components/common/EmptyState';
 import { CaseTimeline } from '../../components/case/CaseTimeline';
 import { ClosureReportButton } from '../../components/case/ClosureReportButton';
 import { caseApi, courtApi } from '../../api';
+import apiClient from '../../api/axios';
 import type { Case, CourtAction } from '../../types/api.types';
 import { CaseState, CourtActionType } from '../../types/api.types';
 import { getCaseStateBadgeVariant, getCaseStateLabel, isInCourt } from '../../utils/caseState';
@@ -25,6 +27,12 @@ export const JudgeCaseDetails: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDraftModalOpen, setIsDraftModalOpen] = useState(false);
+  const [isGeneratingDraft, setIsGeneratingDraft] = useState(false);
+  const [draftText, setDraftText] = useState('');
+  const [draftError, setDraftError] = useState<string | null>(null);
+
+  const isHearingDraftEnabled = (import.meta.env.VITE_FEATURE_HEARING_ORDER_AI ?? 'true') !== 'false';
 
   // Court action form state
   const [actionType, setActionType] = useState<CourtActionType>(CourtActionType.HEARING);
@@ -109,6 +117,72 @@ export const JudgeCaseDetails: React.FC = () => {
   ];
   const canCloseCase = closableStates.includes(currentState as CaseState);
 
+  const buildHearingOrderContext = () => {
+    const firNumber = fir?.firNumber || caseData.id.slice(0, 8);
+    const hearingDateLabel = actionDate ? new Date(actionDate).toLocaleDateString('en-IN') : 'Not set';
+    const sections = fir?.sectionsApplied || 'Not specified';
+    const partiesSummary = `Accused: ${caseData.accused?.length || 0}; Witnesses: ${caseData.witnesses?.length || 0}`;
+
+    return [
+      `Hearing order draft inputs:`,
+      `Case: ${firNumber} (ID: ${caseData.id})`,
+      `Hearing date: ${hearingDateLabel}`,
+      `IPC sections / charges: ${sections}`,
+      `Parties / advocates: ${partiesSummary}`,
+      `Issues considered: <list issues>` ,
+      `Directions / compliance actions: <list directions, timelines, responsible parties>`,
+    ].join('\n');
+  };
+
+  const handleGenerateHearingOrder = async () => {
+    if (!caseData) return;
+    setIsGeneratingDraft(true);
+    setDraftError(null);
+    setDraftText('');
+    try {
+      const response = await apiClient.post('/ai/generate-draft', {
+        caseId: caseData.id,
+        documentType: 'HEARING_ORDER',
+        context: buildHearingOrderContext(),
+      }, { timeout: 60000 });
+      const generated = response.data?.draft || response.data?.data?.draft || '';
+      setDraftText(generated);
+      if (!generated) {
+        setDraftError('No draft returned by AI.');
+      }
+    } catch (err: unknown) {
+      type WithResponse = { response?: { data?: { message?: string } } };
+      const message =
+        typeof err === 'object' && err !== null
+          ? (err as WithResponse).response?.data?.message || (err as Error).message
+          : 'Failed to generate draft';
+      setDraftError(message || 'Failed to generate draft');
+    } finally {
+      setIsGeneratingDraft(false);
+    }
+  };
+
+  const handleCopyDraft = async () => {
+    if (!draftText) return;
+    try {
+      await navigator.clipboard.writeText(draftText);
+      toast.success('Draft copied to clipboard');
+    } catch {
+      toast.error('Unable to copy draft');
+    }
+  };
+
+  const handleDownloadDraft = () => {
+    if (!draftText) return;
+    const blob = new Blob([draftText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hearing-order-${caseData?.fir?.firNumber || caseData?.id}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const getActionBadgeVariant = (actionType: string) => {
     switch (actionType) {
       case CourtActionType.COGNIZANCE:
@@ -132,6 +206,23 @@ export const JudgeCaseDetails: React.FC = () => {
       />
 
       <div className="space-y-6">
+        {isHearingDraftEnabled && (
+          <Card title="AI Assistance (Read-only)">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="text-sm text-gray-600">
+                Generate a hearing order draft. Read-only, no auto-save, no DB writes.
+              </div>
+              <Button
+                variant="primary"
+                className="flex items-center gap-2"
+                onClick={() => setIsDraftModalOpen(true)}
+              >
+                ⚖ Generate Hearing Order Draft
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Case Overview */}
         <Card title="Case Information">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -369,6 +460,61 @@ export const JudgeCaseDetails: React.FC = () => {
           </Link>
         </div>
       </div>
+
+      {isHearingDraftEnabled && isDraftModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-4xl rounded-lg bg-white shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 border-b">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold">Hearing Order Draft (AI-assisted)</h3>
+                  <p className="text-sm text-gray-600 mt-1">Read-only assistance. Nothing is auto-saved or attached.</p>
+                </div>
+                <button onClick={() => setIsDraftModalOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+              </div>
+              <div className="mt-3 rounded-lg bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+                ⚠ Human-in-loop — Review and edit before use. No DB write or workflow change.
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <Button variant="primary" onClick={handleGenerateHearingOrder} isLoading={isGeneratingDraft}>
+                  {isGeneratingDraft ? '✨ Generating...' : '✨ Generate Hearing Order Draft'}
+                </Button>
+                <Button variant="secondary" onClick={() => setIsDraftModalOpen(false)}>
+                  Close
+                </Button>
+                <div className="text-xs text-gray-500">Copy-only. No auto-save.</div>
+              </div>
+
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold">Draft Preview</p>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={handleCopyDraft} disabled={!draftText}>
+                      Copy
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={handleDownloadDraft} disabled={!draftText}>
+                      Download
+                    </Button>
+                  </div>
+                </div>
+                {draftError && <p className="text-sm text-red-600 mb-2">{draftError}</p>}
+                {draftText ? (
+                  <Textarea value={draftText} onChange={(e) => setDraftText(e.target.value)} rows={12} />
+                ) : (
+                  <p className="text-sm text-gray-500">No draft generated yet.</p>
+                )}
+              </div>
+
+              <div className="text-xs text-gray-500">
+                Read-only AI assistance: editable text, copy/download only. No database writes or workflow changes.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
