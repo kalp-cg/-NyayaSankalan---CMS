@@ -9,8 +9,13 @@ const timelineService = new TimelineService();
  */
 export const getCaseTimeline = asyncHandler(async (req: Request, res: Response) => {
   const { caseId } = req.params;
-  const organizationId = req.user!.organizationId;
-  const userRole = req.user!.role;
+  
+  if (!req.user) {
+    throw new Error('Authentication required');
+  }
+  
+  const organizationId = req.user.organizationId;
+  const userRole = req.user.role;
 
   const timeline = await timelineService.getCaseTimeline(caseId, organizationId, userRole);
 

@@ -16,6 +16,19 @@ export class AIService {
     return path.resolve(process.cwd(), '../ai-poc/storage/output/ai_extractions');
   }
 
+  /**
+   * Health check for AI PoC service availability
+   * Returns true if service is reachable, false otherwise
+   */
+  async healthCheck(): Promise<boolean> {
+    try {
+      const res = await fetch(`${this.baseUrl}/health`, { method: 'GET' });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
   async indexAll(): Promise<any> {
     const res = await fetch(`${this.baseUrl}/index`, { method: 'POST' });
     if (!res.ok) throw new Error(`AI service error: ${res.status}`);
@@ -92,7 +105,14 @@ export class AIService {
   }): Promise<string> {
     const extractionId = crypto.randomUUID();
     const outputDir = this.getOutputDir();
-    await fs.mkdir(outputDir, { recursive: true });
+    
+    // Ensure directory exists and is writable
+    try {
+      await fs.mkdir(outputDir, { recursive: true });
+      await fs.access(outputDir, fs.constants.W_OK);
+    } catch (err) {
+      throw new Error(`AI storage directory not accessible: ${outputDir}`);
+    }
 
     const incidentDateStr = payload.incidentDate instanceof Date
       ? payload.incidentDate.toISOString().split('T')[0]

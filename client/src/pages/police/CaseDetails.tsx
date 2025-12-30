@@ -142,7 +142,7 @@ export const PoliceCaseDetails: React.FC = () => {
       if (!text) {
         toast.error('No text extracted');
       } else {
-        toast.success('Text extracted (demo)');
+        toast.success('Text extracted');
       }
     } catch (err: any) {
       console.error('[Evidence OCR Extract Error]:', err.response?.data || err.message);
@@ -465,7 +465,7 @@ export const PoliceCaseDetails: React.FC = () => {
                 variant="ghost"
                 onClick={() => setShowDraftModal(true)}
               >
-                Generate Case Document Draft
+                ✨ Generate Case Document Draft
               </Button>
             </div>
 
@@ -528,7 +528,7 @@ export const PoliceCaseDetails: React.FC = () => {
                         isLoading={extractingEvidence}
                         disabled={!evidenceFile}
                       >
-                        Extract Document Text
+                        {extractingEvidence ? '📄 Extracting text...' : '📄 Extract Document Text'}
                       </Button>
                     </div>
 

@@ -110,7 +110,12 @@ def _load_index_and_meta():
 
 def search_index(query_text, k=5):
     """Search the index for query_text and return up to k results with scores and metadata."""
-    idx, meta = _load_index_and_meta()
+    try:
+        idx, meta = _load_index_and_meta()
+    except FileNotFoundError:
+        # Graceful degradation: return empty results if index doesn't exist
+        return []
+    
     from utils.embeddings import embed_text
     qv = embed_text(query_text).astype(np.float32)
     if qv.ndim == 1:

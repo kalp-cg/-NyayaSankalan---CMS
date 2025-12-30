@@ -27,8 +27,10 @@ export const SHODashboard: React.FC = () => {
       setError(null);
       const data = await caseApi.getAllCases();
       setCases(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to load cases');
+    } catch (err: unknown) {
+      type ErrorResponse = { response?: { data?: { message?: string } }; message?: string };
+      const error = err as ErrorResponse;
+      setError(error.response?.data?.message || error.message || 'Failed to load cases');
     } finally {
       setIsLoading(false);
     }
@@ -97,6 +99,11 @@ export const SHODashboard: React.FC = () => {
             <p className="text-gray-600 mt-2">Submitted to Court</p>
           </div>
         </Card>
+      </div>
+
+      {/* AI Case Similarity & Knowledge Search */}
+      <div className="mb-6">
+        <AISearchWidget />
       </div>
 
       {/* Unassigned Cases - Priority 1 */}
@@ -190,10 +197,6 @@ export const SHODashboard: React.FC = () => {
           </div>
         )}
       </Card>
-
-      <div className="mt-6">
-        <AISearchWidget />
-      </div>
     </>
   );
 };

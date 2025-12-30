@@ -44,8 +44,9 @@ export const CreateFIR: React.FC = () => {
       );
       toast.success('FIR created successfully');
       navigate(`/police/cases/${fir.caseId}`);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create FIR');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to create FIR';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -75,11 +76,13 @@ export const CreateFIR: React.FC = () => {
       if (!text) {
         toast.error('No text extracted (check browser console for response structure)');
       } else {
-        toast.success('Text extracted (demo)');
+        toast.success('Text extracted');
       }
-    } catch (err: any) {
-      console.error('[OCR Extract Error]:', err.response?.data || err.message);
-      const message = err.response?.data?.message || err.response?.data?.error || err.message || 'Extraction failed';
+    } catch (err: unknown) {
+      console.error('[OCR Extract Error]:', err);
+      type ErrorResponse = { response?: { data?: { message?: string; error?: string } }; message?: string };
+      const error = err as ErrorResponse;
+      const message = error.response?.data?.message || error.response?.data?.error || error.message || 'Extraction failed';
       setExtractError(message);
       toast.error(message);
     } finally {
@@ -129,7 +132,9 @@ export const CreateFIR: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-blue-800">Extract Document Text</p>
-                <p className="text-xs text-blue-700">Preview-only. Does not save to database.</p>
+                <p className="text-xs text-blue-700">
+                  AI-generated output — requires officer review before saving.
+                </p>
               </div>
               <Button
                 type="button"
@@ -138,7 +143,7 @@ export const CreateFIR: React.FC = () => {
                 isLoading={extracting}
                 disabled={!firDocument}
               >
-                Extract Document Text
+                {extracting ? '📄 Extracting text...' : '📄 Extract Document Text'}
               </Button>
             </div>
 
@@ -154,7 +159,9 @@ export const CreateFIR: React.FC = () => {
                 rows={6}
                 placeholder="Extracted text will appear here"
               />
-              <p className="text-xs text-gray-500 mt-1">Read-only — text is not stored.</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Preview mode — content is not recorded until formally submitted.
+              </p>
             </div>
           </div>
 
