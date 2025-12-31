@@ -74,31 +74,23 @@ export const SHODashboard: React.FC = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-blue-600">{totalCases}</p>
-            <p className="text-gray-600 mt-2">Total Cases</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-red-600">{unassignedCases.length}</p>
-            <p className="text-gray-600 mt-2">Unassigned</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-orange-600">{pendingReview}</p>
-            <p className="text-gray-600 mt-2">Ready for Court</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-green-600">{submittedToCourt}</p>
-            <p className="text-gray-600 mt-2">Submitted to Court</p>
-          </div>
-        </Card>
+      <div className="stats-grid">
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#1B4F72' }}>{totalCases}</div>
+          <div className="dashboard-stat-label">Total Cases</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#8B0000' }}>{unassignedCases.length}</div>
+          <div className="dashboard-stat-label">Unassigned</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#FF8C00' }}>{pendingReview}</div>
+          <div className="dashboard-stat-label">Ready for Court</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#006400' }}>{submittedToCourt}</div>
+          <div className="dashboard-stat-label">Submitted to Court</div>
+        </div>
       </div>
 
       {/* AI Case Similarity & Knowledge Search */}
@@ -114,15 +106,15 @@ export const SHODashboard: React.FC = () => {
               <Link
                 key={c.id}
                 to={`/sho/cases/${c.id}`}
-                className="block p-4 border border-red-200 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                className="case-list-item priority-urgent block"
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
-                    <p className="text-sm text-gray-600">{c.fir?.sectionsApplied}</p>
-                    <p className="text-xs text-gray-500">
-                      Created: {new Date(c.createdAt).toLocaleDateString('en-IN')}
-                    </p>
+                    <p className="case-list-title">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
+                    <p className="text-sm text-gray-700">{c.fir?.sectionsApplied}</p>
+                    <div className="case-list-meta">
+                      <span className="case-list-meta-item">Created: {new Date(c.createdAt).toLocaleDateString('en-IN')}</span>
+                    </div>
                   </div>
                   <Badge variant="danger">UNASSIGNED</Badge>
                 </div>
@@ -147,12 +139,12 @@ export const SHODashboard: React.FC = () => {
                 <Link
                   key={c.id}
                   to={`/sho/cases/${c.id}`}
-                  className="block p-4 border border-orange-200 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
+                  className="case-list-item priority-high block"
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-semibold">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
-                      <p className="text-sm text-gray-600">{c.fir?.sectionsApplied}</p>
+                      <p className="case-list-title">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
+                      <p className="text-sm text-gray-700">{c.fir?.sectionsApplied}</p>
                     </div>
                     <Badge variant="warning">{state.replace(/_/g, ' ')}</Badge>
                   </div>
@@ -175,14 +167,16 @@ export const SHODashboard: React.FC = () => {
                 <Link
                   key={c.id}
                   to={`/sho/cases/${c.id}`}
-                  className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="case-list-item block"
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-semibold">{c.fir?.firNumber}</p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(c.createdAt).toLocaleDateString()}
-                      </p>
+                      <p className="case-list-title">{c.fir?.firNumber}</p>
+                      <div className="case-list-meta">
+                        <span className="case-list-meta-item">
+                          📅 {new Date(c.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                     <Badge variant={getCaseStateBadgeVariant(state)}>
                       {getCaseStateLabel(state)}

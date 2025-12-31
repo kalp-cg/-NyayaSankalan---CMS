@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types/api.types';
 import { NotificationBell } from '../common/NotificationBell';
 import { SearchBar } from '../common/SearchBar';
+import { GovernmentEmblem } from '../common/GovernmentLogo';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -37,10 +38,7 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to={getDashboardLink()} className="flex items-center">
-              <span className="text-xl font-bold text-blue-600">NyayaSankalan</span>
-              <span className="ml-2 text-sm text-gray-600">
-                Police-Court Case Management
-              </span>
+              <GovernmentEmblem />
             </Link>
           </div>
 

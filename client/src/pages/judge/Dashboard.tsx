@@ -79,25 +79,19 @@ export const JudgeDashboard: React.FC = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-blue-600">{courtAcceptedCases.length}</p>
-            <p className="text-sm text-gray-600 mt-2">Ready for Trial</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-orange-600">{trialCases.length}</p>
-            <p className="text-sm text-gray-600 mt-2">Trial Ongoing</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-purple-600">{judgmentReservedCases.length}</p>
-            <p className="text-sm text-gray-600 mt-2">Judgment Reserved</p>
-          </div>
-        </Card>
+      <div className="stats-grid">
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#1B4F72' }}>{courtAcceptedCases.length}</div>
+          <div className="dashboard-stat-label">Ready for Trial</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#FF8C00' }}>{trialCases.length}</div>
+          <div className="dashboard-stat-label">Trial Ongoing</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#5D6D7E' }}>{judgmentReservedCases.length}</div>
+          <div className="dashboard-stat-label">Judgment Reserved</div>
+        </div>
         <Card>
           <div className="text-center">
             <p className="text-3xl font-bold text-green-600">{disposedCases.length}</p>
@@ -114,19 +108,19 @@ export const JudgeDashboard: React.FC = () => {
               <Link
                 key={c.id}
                 to={`/judge/cases/${c.id}`}
-                className="block p-4 border border-blue-200 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                className="case-list-item priority-high block"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-lg">
+                    <h3 className="case-list-title">
                       {c.fir?.firNumber || `Case ${c.id.slice(0, 8)}`}
                     </h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-700 mt-1">
                       Sections: {c.fir?.sectionsApplied || 'N/A'}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      Accepted: {new Date(c.createdAt).toLocaleDateString('en-IN')}
-                    </p>
+                    <div className="case-list-meta">
+                      <span className="case-list-meta-item">Accepted: {new Date(c.createdAt).toLocaleDateString('en-IN')}</span>
+                    </div>
                   </div>
                   <Badge variant="info">Schedule Hearing</Badge>
                 </div>
@@ -149,17 +143,19 @@ export const JudgeDashboard: React.FC = () => {
               <Link
                 key={c.id}
                 to={`/judge/cases/${c.id}`}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="case-list-item block"
               >
-                <div>
-                  <p className="font-medium">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
-                  <p className="text-sm text-gray-500">
-                    {c.fir?.sectionsApplied || 'N/A'}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="case-list-title">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
+                    <p className="text-sm text-gray-700 mt-1">
+                      {c.fir?.sectionsApplied || 'N/A'}
+                    </p>
+                  </div>
+                  <Badge variant={getBadgeVariant(c.state?.currentState || '')}>
+                    {(c.state?.currentState || 'UNKNOWN').replace(/_/g, ' ')}
+                  </Badge>
                 </div>
-                <Badge variant={getBadgeVariant(c.state?.currentState || '')}>
-                  {(c.state?.currentState || 'UNKNOWN').replace(/_/g, ' ')}
-                </Badge>
               </Link>
             ))}
           </div>

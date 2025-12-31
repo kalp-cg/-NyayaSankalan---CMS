@@ -59,25 +59,19 @@ export const PoliceDashboard: React.FC = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-blue-600">{totalCases}</p>
-            <p className="text-gray-600 mt-2">Total Cases</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-yellow-600">{underInvestigation}</p>
-            <p className="text-gray-600 mt-2">Under Investigation</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-green-600">{submittedToCourt}</p>
-            <p className="text-gray-600 mt-2">In Court</p>
-          </div>
-        </Card>
+      <div className="stats-grid">
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#1B4F72' }}>{totalCases}</div>
+          <div className="dashboard-stat-label">Total Cases</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#FF8C00' }}>{underInvestigation}</div>
+          <div className="dashboard-stat-label">Under Investigation</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#006400' }}>{submittedToCourt}</div>
+          <div className="dashboard-stat-label">In Court</div>
+        </div>
       </div>
 
       {/* Recent Cases */}
@@ -111,21 +105,18 @@ export const PoliceDashboard: React.FC = () => {
                 <Link
                   key={c.id}
                   to={`/police/cases/${c.id}`}
-                  className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
+                  className="case-list-item block"
                 >
                   <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold text-lg">FIR: {firNumber}</h3>
-                      <p className="text-sm text-gray-600 mt-1">
+                    <div className="flex-1">
+                      <h3 className="case-list-title">FIR: {firNumber}</h3>
+                      <p className="text-sm text-gray-700 mt-1">
                         {c.fir?.sectionsApplied || 'No sections specified'}
                       </p>
-                      <div className="flex items-center mt-2 space-x-4 text-sm text-gray-500">
-                        <span>📅 {new Date(c.createdAt).toLocaleDateString()}</span>
+                      <div className="case-list-meta">
+                        <span className="case-list-meta-item">📅 {new Date(c.createdAt).toLocaleDateString()}</span>
                         {c.fir?.policeStation && (
-                          <>
-                            <span>•</span>
-                            <span>🏢 {c.fir.policeStation.name}</span>
-                          </>
+                          <span className="case-list-meta-item">🏢 {c.fir.policeStation.name}</span>
                         )}
                       </div>
                     </div>

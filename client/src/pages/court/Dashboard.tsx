@@ -60,31 +60,23 @@ export const CourtDashboard: React.FC = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-orange-600">{incomingCases.length}</p>
-            <p className="text-sm text-gray-600 mt-2">Pending Intake</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-green-600">{acceptedCases.length}</p>
-            <p className="text-sm text-gray-600 mt-2">Accepted</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-blue-600">{trialCases.length}</p>
-            <p className="text-sm text-gray-600 mt-2">In Trial</p>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-purple-600">{cases.length}</p>
-            <p className="text-sm text-gray-600 mt-2">Total Cases</p>
-          </div>
-        </Card>
+      <div className="stats-grid">
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#FF8C00' }}>{incomingCases.length}</div>
+          <div className="dashboard-stat-label">Pending Intake</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#006400' }}>{acceptedCases.length}</div>
+          <div className="dashboard-stat-label">Accepted</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#1B4F72' }}>{trialCases.length}</div>
+          <div className="dashboard-stat-label">In Trial</div>
+        </div>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-number" style={{ color: '#5D6D7E' }}>{cases.length}</div>
+          <div className="dashboard-stat-label">Total Cases</div>
+        </div>
       </div>
 
       {/* Cases Needing Action */}
@@ -95,19 +87,19 @@ export const CourtDashboard: React.FC = () => {
               <Link
                 key={c.id}
                 to={`/court/cases/${c.id}`}
-                className="block p-4 border border-orange-200 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
+                className="case-list-item priority-high block"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-lg">
+                    <h3 className="case-list-title">
                       {c.fir?.firNumber || `Case ${c.id.slice(0, 8)}`}
                     </h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-700 mt-1">
                       Sections: {c.fir?.sectionsApplied || 'N/A'}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      Submitted: {new Date(c.createdAt).toLocaleDateString('en-IN')}
-                    </p>
+                    <div className="case-list-meta">
+                      <span className="case-list-meta-item">Submitted: {new Date(c.createdAt).toLocaleDateString('en-IN')}</span>
+                    </div>
                   </div>
                   <Badge variant="warning">Accept Case</Badge>
                 </div>
@@ -138,15 +130,17 @@ export const CourtDashboard: React.FC = () => {
               <Link
                 key={c.id}
                 to={`/court/cases/${c.id}`}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="case-list-item block"
               >
-                <div>
-                  <p className="font-medium">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
-                  <p className="text-sm text-gray-500">
-                    {c.fir?.sectionsApplied || 'N/A'}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="case-list-title">{c.fir?.firNumber || c.id.slice(0, 8)}</p>
+                    <p className="text-sm text-gray-700 mt-1">
+                      {c.fir?.sectionsApplied || 'N/A'}
+                    </p>
+                  </div>
+                  <Badge variant="success">Accepted</Badge>
                 </div>
-                <Badge variant="success">Accepted</Badge>
               </Link>
             ))}
           </div>
