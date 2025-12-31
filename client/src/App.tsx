@@ -6,6 +6,7 @@ import { ProtectedRoute } from './routes/ProtectedRoute';
 import { Layout } from './components/layout/Layout';
 import { UserRole } from './types/api.types';
 import { Notifications } from './pages/Notifications';
+import { NotificationToast } from './components/notifications';
 
 // AI demo page (preview only)
 import AIDemoPage from './pages/ai/Demo';
@@ -42,106 +43,107 @@ function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-      <BrowserRouter>
-        <Toaster position="top-right" />
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
+        <BrowserRouter>
+          <Toaster position="top-right" />
+          <NotificationToast />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
 
-          {/* Police routes */}
-          <Route
-            path="/police/*"
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.POLICE]}>
-                <Layout>
-                  <Routes>
-                    <Route path="dashboard" element={<PoliceDashboard />} />
-                    <Route path="create-fir" element={<CreateFIR />} />
-                    <Route path="my-cases" element={<PoliceMyCases />} />
-                    <Route path="request-documents" element={<RequestDocuments />} />
-                    <Route path="cases/:id" element={<PoliceCaseDetails />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Police routes */}
+            <Route
+              path="/police/*"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.POLICE]}>
+                  <Layout>
+                    <Routes>
+                      <Route path="dashboard" element={<PoliceDashboard />} />
+                      <Route path="create-fir" element={<CreateFIR />} />
+                      <Route path="my-cases" element={<PoliceMyCases />} />
+                      <Route path="request-documents" element={<RequestDocuments />} />
+                      <Route path="cases/:id" element={<PoliceCaseDetails />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* SHO routes */}
-          <Route
-            path="/sho/*"
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.SHO]}>
-                <Layout>
-                  <Routes>
-                    <Route path="dashboard" element={<SHODashboard />} />
-                    <Route path="all-cases" element={<SHOAllCases />} />
-                    <Route path="document-requests" element={<DocumentRequests />} />
-                    <Route path="cases/:id" element={<SHOCaseDetails />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* SHO routes */}
+            <Route
+              path="/sho/*"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.SHO]}>
+                  <Layout>
+                    <Routes>
+                      <Route path="dashboard" element={<SHODashboard />} />
+                      <Route path="all-cases" element={<SHOAllCases />} />
+                      <Route path="document-requests" element={<DocumentRequests />} />
+                      <Route path="cases/:id" element={<SHOCaseDetails />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Court Clerk routes */}
-          <Route
-            path="/court/*"
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.COURT_CLERK]}>
-                <Layout>
-                  <Routes>
-                    <Route path="dashboard" element={<CourtDashboard />} />
-                    <Route path="incoming-cases" element={<IncomingCases />} />
-                    <Route path="document-requests" element={<ApprovedRequests />} />
-                    <Route path="cases/:id" element={<CourtCaseDetails />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Court Clerk routes */}
+            <Route
+              path="/court/*"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.COURT_CLERK]}>
+                  <Layout>
+                    <Routes>
+                      <Route path="dashboard" element={<CourtDashboard />} />
+                      <Route path="incoming-cases" element={<IncomingCases />} />
+                      <Route path="document-requests" element={<ApprovedRequests />} />
+                      <Route path="cases/:id" element={<CourtCaseDetails />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Judge routes */}
-          <Route
-            path="/judge/*"
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.JUDGE]}>
-                <Layout>
-                  <Routes>
-                    <Route path="dashboard" element={<JudgeDashboard />} />
-                    <Route path="cases" element={<JudgeCases />} />
-                    <Route path="cases/:id" element={<JudgeCaseDetails />} />
-                    <Route path="reopen-requests" element={<ReopenRequests />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Judge routes */}
+            <Route
+              path="/judge/*"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.JUDGE]}>
+                  <Layout>
+                    <Routes>
+                      <Route path="dashboard" element={<JudgeDashboard />} />
+                      <Route path="cases" element={<JudgeCases />} />
+                      <Route path="cases/:id" element={<JudgeCaseDetails />} />
+                      <Route path="reopen-requests" element={<ReopenRequests />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Police - reopen requests listing */}
-          <Route
-            path="/police/case-reopen"
-            element={
-              <ProtectedRoute allowedRoles={[UserRole.POLICE]}>
-                <Layout>
-                  <Routes>
-                    <Route path="" element={<MyReopenRequests />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            {/* Police - reopen requests listing */}
+            <Route
+              path="/police/case-reopen"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.POLICE]}>
+                  <Layout>
+                    <Routes>
+                      <Route path="" element={<MyReopenRequests />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Notifications page */}
-          <Route path="/notifications" element={<ProtectedRoute allowedRoles={[UserRole.POLICE, UserRole.SHO, UserRole.COURT_CLERK, UserRole.JUDGE]}><Layout><Notifications /></Layout></ProtectedRoute>} />
+            {/* Notifications page */}
+            <Route path="/notifications" element={<ProtectedRoute allowedRoles={[UserRole.POLICE, UserRole.SHO, UserRole.COURT_CLERK, UserRole.JUDGE]}><Layout><Notifications /></Layout></ProtectedRoute>} />
 
-          {/* AI demo (preview-only) */}
-          <Route path="/ai-demo" element={<ProtectedRoute allowedRoles={[UserRole.POLICE, UserRole.SHO, UserRole.COURT_CLERK, UserRole.JUDGE]}><Layout><AIDemoPage /></Layout></ProtectedRoute>} />
+            {/* AI demo (preview-only) */}
+            <Route path="/ai-demo" element={<ProtectedRoute allowedRoles={[UserRole.POLICE, UserRole.SHO, UserRole.COURT_CLERK, UserRole.JUDGE]}><Layout><AIDemoPage /></Layout></ProtectedRoute>} />
 
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">404 - Page Not Found</h1></div>} />
-        </Routes>
-      </BrowserRouter>
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<div className="p-8 text-center"><h1 className="text-2xl font-bold">404 - Page Not Found</h1></div>} />
+          </Routes>
+        </BrowserRouter>
       </NotificationProvider>
     </AuthProvider>
   );

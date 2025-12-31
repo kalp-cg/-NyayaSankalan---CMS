@@ -378,3 +378,283 @@ table tr:hover {
   gap: 20px;
   margin-bottom: 30px;
 }
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+/* Base mobile-first approach */
+* {
+  box-sizing: border-box;
+}
+
+/* Touch-friendly minimum sizes */
+.btn,
+button,
+a.btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+}
+
+/* Mobile Navigation & Layout */
+@media (max-width: 768px) {
+  .card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-stat-card {
+    padding: 20px;
+  }
+
+  .dashboard-stat-number {
+    font-size: 32px;
+  }
+
+  .dashboard-stat-label {
+    font-size: 11px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-stat-card {
+    padding: 16px;
+  }
+
+  .dashboard-stat-number {
+    font-size: 28px;
+  }
+}
+
+/* Responsive Tables */
+@media (max-width: 768px) {
+  table {
+    font-size: 13px;
+  }
+
+  table th,
+  table td {
+    padding: 8px;
+  }
+
+  /* Stack table on very small screens */
+  @media (max-width: 640px) {
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+      display: block;
+    }
+
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    tr {
+      margin-bottom: 16px;
+      border: 1px solid #d0d0d0;
+    }
+
+    td {
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding-left: 50%;
+    }
+
+    td:before {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap;
+      font-weight: bold;
+      content: attr(data-label);
+    }
+  }
+}
+
+/* Responsive Forms */
+@media (max-width: 768px) {
+  .input,
+  select,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .btn + .btn {
+    margin-left: 0;
+  }
+}
+
+/* Case List Items - Mobile */
+@media (max-width: 768px) {
+  .case-list-item {
+    padding: 16px;
+  }
+
+  .case-list-title {
+    font-size: 15px;
+  }
+
+  .case-list-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Responsive Spacing */
+@media (max-width: 768px) {
+  .empty-state-box {
+    padding: 30px 20px;
+  }
+
+  .empty-state-icon {
+    font-size: 36px;
+  }
+
+  .empty-state-title {
+    font-size: 16px;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover {
+    transform: none;
+  }
+
+  .case-list-item:hover {
+    transform: none;
+  }
+
+  /* Larger tap targets */
+  a,
+  button,
+  .btn {
+    padding: 12px 20px;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 896px) and (orientation: landscape) {
+  .dashboard-stat-card {
+    padding: 16px;
+  }
+
+  .dashboard-stat-number {
+    font-size: 28px;
+  }
+}
+
+/* Tablet optimization */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+}
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile-friendly scrollbars */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Print styles */
+@media print {
+  .btn,
+  nav,
+  .sidebar {
+    display: none;
+  }
+
+  body {
+    background: white;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
+
