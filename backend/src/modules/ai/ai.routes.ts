@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { rebuildIndex, proxySearch, indexDocument, proxyOcrExtract, proxyGenerateDraft, proxyChat } from './ai.controller';
+import { rebuildIndex, syncIndexFromDatabase, proxySearch, indexDocument, proxyOcrExtract, proxyGenerateDraft, proxyChat } from './ai.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { uploadSingle } from '../../middleware/upload.middleware';
 
