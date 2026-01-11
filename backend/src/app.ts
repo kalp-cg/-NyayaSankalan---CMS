@@ -18,6 +18,7 @@ import closureReportRoutes from './modules/closure-report/closure-report.routes'
 import aiRoutes from './modules/ai/ai.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 import aiEnhancedRoutes from './modules/ai/ai-enhanced.routes';
+import aiFeaturesRoutes from './modules/ai/features.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { ApiError } from './utils/ApiError';
 import { validateCloudinaryConfig } from './config/cloudinary';
@@ -66,13 +67,47 @@ export const createApp = (): Application => {
     });
   });
 
-  // Health check endpoint
-  app.get('/health', (req, res) => {
-    res.status(200).json({
+  // Health check endpoint - Enhanced with dependency checks
+  app.get('/health', async (req, res) => {
+    const health = {
       success: true,
-      message: 'Server is running',
+      status: 'healthy',
       timestamp: new Date().toISOString(),
-    });
+      uptime: process.uptime(),
+      services: {
+        api: 'up',
+        database: 'unknown',
+        aiPoc: 'unknown',
+      },
+    };
+
+    try {
+      // Check database connection
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
+      await prisma.$queryRaw`SELECT 1`;
+      health.services.database = 'up';
+      await prisma.$disconnect();
+    } catch (err) {
+      health.services.database = 'down';
+      health.success = false;
+      health.status = 'degraded';
+    }
+
+    // Check ai-poc service (non-blocking)
+    try {
+      const aiPocUrl = process.env.AI_POC_URL || 'http://localhost:8001';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2000);
+      const response = await fetch(`${aiPocUrl}/health`, { signal: controller.signal });
+      clearTimeout(timeout);
+      health.services.aiPoc = response.ok ? 'up' : 'down';
+    } catch (err) {
+      health.services.aiPoc = 'down';
+    }
+
+    const statusCode = health.success ? 200 : 503;
+    res.status(statusCode).json(health);
   });
 
   // API routes
@@ -93,6 +128,7 @@ export const createApp = (): Application => {
   app.use('/api/ai', aiRoutes); // /api/ai/search, /api/ai/index
   app.use('/api/analytics', analyticsRoutes);
   app.use('/api/ai', aiEnhancedRoutes); // /api/ai/enhanced/*
+  app.use('/api/ai', aiFeaturesRoutes); // /api/ai/case-readiness, /api/ai/document-validate, /api/ai/case-brief
 
   // 404 handler
   app.use((req, res, next) => {

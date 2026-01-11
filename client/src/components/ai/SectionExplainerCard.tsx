@@ -3,7 +3,7 @@ import { Card } from '../ui/Card';
 import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
-import { Loader } from '../common/Loader';
+import { SectionExplainerSkeleton } from '../common/SkeletonLoader';
 import toast from 'react-hot-toast';
 import { aiEnhancedApi } from '../../api/aiEnhanced.api';
 
@@ -27,6 +27,8 @@ interface SectionDetails {
   ipc_equivalent?: string;
   keywords?: string[];
   relatedSections?: string[];
+  label?: string;
+  code?: 'ipc' | 'bns';
 }
 
 interface PrecedentItem {
@@ -73,15 +75,20 @@ export const SectionExplainerCard: React.FC<Props> = ({ defaultSection = '302', 
           }
         } else {
           console.warn('No sections data received or empty array');
-          // Fallback to a basic list if API fails
+          // Fallback to comprehensive list if API fails
           const fallbackSections: SectionOption[] = [
             { value: '302', label: 'IPC 302 - Murder', section: 'IPC 302', title: 'Murder', code: 'ipc' },
-            { value: '304', label: 'IPC 304 - Culpable Homicide', section: 'IPC 304', title: 'Culpable Homicide', code: 'ipc' },
+            { value: '304', label: 'IPC 304 - Culpable Homicide', section: 'IPC 304', title: 'Culpable Homicide Not Amounting to Murder', code: 'ipc' },
             { value: '307', label: 'IPC 307 - Attempt to Murder', section: 'IPC 307', title: 'Attempt to Murder', code: 'ipc' },
             { value: '323', label: 'IPC 323 - Causing Hurt', section: 'IPC 323', title: 'Causing Hurt', code: 'ipc' },
+            { value: '325', label: 'IPC 325 - Grievous Hurt', section: 'IPC 325', title: 'Voluntarily Causing Grievous Hurt', code: 'ipc' },
             { value: '376', label: 'IPC 376 - Rape', section: 'IPC 376', title: 'Rape', code: 'ipc' },
+            { value: '380', label: 'IPC 380 - Theft', section: 'IPC 380', title: 'Theft', code: 'ipc' },
+            { value: '420', label: 'IPC 420 - Cheating', section: 'IPC 420', title: 'Cheating and Dishonestly Inducing Delivery', code: 'ipc' },
             { value: '103', label: 'BNS 103 - Murder', section: 'BNS 103', title: 'Murder', code: 'bns' },
-            { value: '105', label: 'BNS 105 - Culpable Homicide', section: 'BNS 105', title: 'Culpable Homicide', code: 'bns' },
+            { value: '104', label: 'BNS 104 - Culpable Homicide', section: 'BNS 104', title: 'Culpable Homicide Not Amounting to Murder', code: 'bns' },
+            { value: '105', label: 'BNS 105 - Attempt to Murder', section: 'BNS 105', title: 'Attempt to Murder', code: 'bns' },
+            { value: '69', label: 'BNS 69 - Rape', section: 'BNS 69', title: 'Rape', code: 'bns' },
           ];
           setSectionOptions(fallbackSections);
           setSection(defaultSection);
@@ -89,15 +96,20 @@ export const SectionExplainerCard: React.FC<Props> = ({ defaultSection = '302', 
         }
       } catch (err) {
         console.error('Failed to load sections list:', err);
-        // Fallback to basic sections on error
+        // Fallback to comprehensive sections on error
         const fallbackSections: SectionOption[] = [
           { value: '302', label: 'IPC 302 - Murder', section: 'IPC 302', title: 'Murder', code: 'ipc' },
-          { value: '304', label: 'IPC 304 - Culpable Homicide', section: 'IPC 304', title: 'Culpable Homicide', code: 'ipc' },
+          { value: '304', label: 'IPC 304 - Culpable Homicide', section: 'IPC 304', title: 'Culpable Homicide Not Amounting to Murder', code: 'ipc' },
           { value: '307', label: 'IPC 307 - Attempt to Murder', section: 'IPC 307', title: 'Attempt to Murder', code: 'ipc' },
           { value: '323', label: 'IPC 323 - Causing Hurt', section: 'IPC 323', title: 'Causing Hurt', code: 'ipc' },
+          { value: '325', label: 'IPC 325 - Grievous Hurt', section: 'IPC 325', title: 'Voluntarily Causing Grievous Hurt', code: 'ipc' },
           { value: '376', label: 'IPC 376 - Rape', section: 'IPC 376', title: 'Rape', code: 'ipc' },
+          { value: '380', label: 'IPC 380 - Theft', section: 'IPC 380', title: 'Theft', code: 'ipc' },
+          { value: '420', label: 'IPC 420 - Cheating', section: 'IPC 420', title: 'Cheating and Dishonestly Inducing Delivery', code: 'ipc' },
           { value: '103', label: 'BNS 103 - Murder', section: 'BNS 103', title: 'Murder', code: 'bns' },
-          { value: '105', label: 'BNS 105 - Culpable Homicide', section: 'BNS 105', title: 'Culpable Homicide', code: 'bns' },
+          { value: '104', label: 'BNS 104 - Culpable Homicide', section: 'BNS 104', title: 'Culpable Homicide Not Amounting to Murder', code: 'bns' },
+          { value: '105', label: 'BNS 105 - Attempt to Murder', section: 'BNS 105', title: 'Attempt to Murder', code: 'bns' },
+          { value: '69', label: 'BNS 69 - Rape', section: 'BNS 69', title: 'Rape', code: 'bns' },
         ];
         setSectionOptions(fallbackSections);
         setSection(defaultSection);
@@ -114,8 +126,12 @@ export const SectionExplainerCard: React.FC<Props> = ({ defaultSection = '302', 
   const filteredOptions = sectionOptions.filter(opt => opt.code === codeType);
 
   const formatFlag = (value?: boolean) => {
-    if (value === undefined) return 'N/A';
-    return value ? 'Yes' : 'No';
+    if (value === undefined || value === null) return 'N/A';
+    return value ? (
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
+    ) : (
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">No</span>
+    );
   };
 
   const handleSectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -221,29 +237,63 @@ export const SectionExplainerCard: React.FC<Props> = ({ defaultSection = '302', 
         </div>
 
         {loadingOptions && (
-          <div className="flex items-center justify-center py-8">
-            <Loader />
-          </div>
+          <SectionExplainerSkeleton />
         )}
 
         {!loadingOptions && details && (
-          <div className="border rounded p-3 bg-gray-50 space-y-1">
-            <p className="text-sm font-semibold">{details.title || details.section || section}</p>
-            {details.description && (
-              <p className="text-sm text-gray-700 whitespace-pre-line">{details.description}</p>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700 pt-2">
-              <div><span className="font-semibold">Section:</span> {details.section || `${codeType.toUpperCase()} ${section}`}</div>
-              <div><span className="font-semibold">Category:</span> {details.category || '—'}</div>
-              <div><span className="font-semibold">Bailable:</span> {formatFlag(details.bailable)}</div>
-              <div><span className="font-semibold">Cognizable:</span> {formatFlag(details.cognizable)}</div>
-              <div className="md:col-span-2"><span className="font-semibold">Punishment:</span> {details.punishment || 'Not specified'}</div>
+          <div className="border rounded p-4 bg-gradient-to-br from-blue-50 to-indigo-50 space-y-4">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">{details.title || details.section || section}</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {details.section || `${codeType.toUpperCase()} ${section}`}
+              </p>
             </div>
+
+            {details.description && (
+              <div>
+                <p className="text-sm font-semibold text-gray-700 mb-1">Description</p>
+                <p className="text-sm text-gray-700 whitespace-pre-line bg-white rounded p-2 border-l-4 border-blue-400">{details.description}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {details.punishment && (
+                <div className="bg-white rounded p-3 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Punishment</p>
+                  <p className="text-sm text-gray-900 mt-1 font-medium">{details.punishment}</p>
+                </div>
+              )}
+
+              {details.category && (
+                <div className="bg-white rounded p-3 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Category</p>
+                  <p className="text-sm text-gray-900 mt-1 font-medium">{details.category}</p>
+                </div>
+              )}
+
+              <div className="bg-white rounded p-3 border border-gray-200">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Bailable</p>
+                <div className="mt-1">
+                  {formatFlag(details.bailable)}
+                </div>
+              </div>
+
+              <div className="bg-white rounded p-3 border border-gray-200">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Cognizable</p>
+                <div className="mt-1">
+                  {formatFlag(details.cognizable)}
+                </div>
+              </div>
+            </div>
+
             {details.relatedSections && Array.isArray(details.relatedSections) && details.relatedSections.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {details.relatedSections.map((rs: string) => (
-                  <Badge key={rs} variant="info">{rs}</Badge>
-                ))}
+              <div>
+                <p className="text-sm font-semibold text-gray-700 mb-2">Related Sections</p>
+                <div className="flex flex-wrap gap-2">
+                  {details.relatedSections.map((rs: string) => (
+                    <Badge key={rs} variant="info">{rs}</Badge>
+                  ))}
+                </div>
               </div>
             )}
           </div>
