@@ -11,6 +11,7 @@ import type { Case } from '../../types/api.types';
 import { CaseState } from '../../types/api.types';
 import { getCaseStateBadgeVariant, getCaseStateLabel } from '../../utils/caseState';
 import { AISearchWidget } from '../../components/ai/AISearchWidget';
+import { SectionExplainerCard } from '../../components/ai/SectionExplainerCard';
 
 export const SHODashboard: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -96,6 +97,11 @@ export const SHODashboard: React.FC = () => {
       {/* AI Case Similarity & Knowledge Search */}
       <div className="mb-6">
         <AISearchWidget />
+      </div>
+
+      {/* Section Explainer with IPC/BNS details and precedents */}
+      <div className="mb-6">
+        <SectionExplainerCard title="Section Explainer & Precedents" />
       </div>
 
       {/* Unassigned Cases - Priority 1 */}

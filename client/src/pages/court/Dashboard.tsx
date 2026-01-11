@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { caseApi } from '../../api';
 import type { Case } from '../../types/api.types';
 import { CaseState } from '../../types/api.types';
+import { SectionExplainerCard } from '../../components/ai/SectionExplainerCard';
 
 export const CourtDashboard: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -116,6 +117,11 @@ export const CourtDashboard: React.FC = () => {
           </div>
         </Card>
       )}
+
+      {/* Section Explainer with IPC/BNS equivalents and precedents */}
+      <div className="mt-6">
+        <SectionExplainerCard title="Section Explainer & Precedents" />
+      </div>
 
       {/* Recent Accepted Cases */}
       <Card title="Recently Accepted Cases">

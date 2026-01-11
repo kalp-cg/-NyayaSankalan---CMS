@@ -11,6 +11,7 @@ import { caseApi } from '../../api';
 import type { Case } from '../../types/api.types';
 import { CaseState } from '../../types/api.types';
 import { getCaseStateBadgeVariant, getCaseStateLabel } from '../../utils/caseState';
+import { SectionExplainerCard } from '../../components/ai/SectionExplainerCard';
 
 export const PoliceDashboard: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -160,6 +161,11 @@ export const PoliceDashboard: React.FC = () => {
           </Card>
         </div>
       )}
+
+      {/* Section Explainer with precedents for quick reference */}
+      <div className="mb-6">
+        <SectionExplainerCard title="Section Explainer & Precedents" />
+      </div>
 
       {/* Recent Cases */}
       <Card title="My Assigned Cases">

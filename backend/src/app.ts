@@ -18,6 +18,7 @@ import closureReportRoutes from './modules/closure-report/closure-report.routes'
 import aiRoutes from './modules/ai/ai.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 import aiEnhancedRoutes from './modules/ai/ai-enhanced.routes';
+import aiFeaturesRoutes from './modules/ai/features.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { ApiError } from './utils/ApiError';
 import { validateCloudinaryConfig } from './config/cloudinary';
@@ -93,6 +94,7 @@ export const createApp = (): Application => {
   app.use('/api/ai', aiRoutes); // /api/ai/search, /api/ai/index
   app.use('/api/analytics', analyticsRoutes);
   app.use('/api/ai', aiEnhancedRoutes); // /api/ai/enhanced/*
+  app.use('/api/ai', aiFeaturesRoutes); // /api/ai/case-readiness, /api/ai/document-validate, /api/ai/case-brief
 
   // 404 handler
   app.use((req, res, next) => {

@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { caseApi } from '../../api';
 import type { Case } from '../../types/api.types';
 import { CaseState } from '../../types/api.types';
+import { SectionExplainerCard } from '../../components/ai/SectionExplainerCard';
 
 export const JudgeDashboard: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -161,6 +162,11 @@ export const JudgeDashboard: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* Section Explainer for quick legal reference */}
+      <div className="mt-6">
+        <SectionExplainerCard title="Section Explainer & Precedents" />
+      </div>
     </>
   );
 };

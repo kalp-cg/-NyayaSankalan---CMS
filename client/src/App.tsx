@@ -36,6 +36,9 @@ import { JudgeCases } from './pages/judge/Cases';
 import { JudgeCaseDetails } from './pages/judge/CaseDetails';
 import { ReopenRequests } from './pages/judge/ReopenRequests';
 
+// Analytics page
+import { AnalyticsDashboard } from './pages/police/AnalyticsDashboard';
+
 // Police pages
 import { MyReopenRequests } from './pages/police/MyReopenRequests';
 
@@ -58,6 +61,7 @@ function App() {
                   <Layout>
                     <Routes>
                       <Route path="dashboard" element={<PoliceDashboard />} />
+                      <Route path="analytics" element={<AnalyticsDashboard />} />
                       <Route path="create-fir" element={<CreateFIR />} />
                       <Route path="my-cases" element={<PoliceMyCases />} />
                       <Route path="request-documents" element={<RequestDocuments />} />
