@@ -4,6 +4,7 @@ import { Header } from '../../components/layout/Header';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Loader } from '../../components/common/Loader';
+import { StatCardSkeleton, CardSkeleton } from '../../components/common/SkeletonLoader';
 import { ErrorMessage } from '../../components/common/ErrorMessage';
 import { EmptyState } from '../../components/common/EmptyState';
 import { caseApi } from '../../api';
@@ -37,7 +38,28 @@ export const SHODashboard: React.FC = () => {
     }
   };
 
-  if (isLoading) return <Loader />;
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">SHO Dashboard</h1>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        </div>
+      </>
+    );
+  }
   if (error) return <ErrorMessage message={error} retry={fetchCases} />;
 
   // Calculate stats

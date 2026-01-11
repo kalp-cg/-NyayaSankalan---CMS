@@ -67,13 +67,47 @@ export const createApp = (): Application => {
     });
   });
 
-  // Health check endpoint
-  app.get('/health', (req, res) => {
-    res.status(200).json({
+  // Health check endpoint - Enhanced with dependency checks
+  app.get('/health', async (req, res) => {
+    const health = {
       success: true,
-      message: 'Server is running',
+      status: 'healthy',
       timestamp: new Date().toISOString(),
-    });
+      uptime: process.uptime(),
+      services: {
+        api: 'up',
+        database: 'unknown',
+        aiPoc: 'unknown',
+      },
+    };
+
+    try {
+      // Check database connection
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
+      await prisma.$queryRaw`SELECT 1`;
+      health.services.database = 'up';
+      await prisma.$disconnect();
+    } catch (err) {
+      health.services.database = 'down';
+      health.success = false;
+      health.status = 'degraded';
+    }
+
+    // Check ai-poc service (non-blocking)
+    try {
+      const aiPocUrl = process.env.AI_POC_URL || 'http://localhost:8001';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2000);
+      const response = await fetch(`${aiPocUrl}/health`, { signal: controller.signal });
+      clearTimeout(timeout);
+      health.services.aiPoc = response.ok ? 'up' : 'down';
+    } catch (err) {
+      health.services.aiPoc = 'down';
+    }
+
+    const statusCode = health.success ? 200 : 503;
+    res.status(statusCode).json(health);
   });
 
   // API routes

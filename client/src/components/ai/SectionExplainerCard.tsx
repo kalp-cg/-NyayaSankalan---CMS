@@ -4,6 +4,7 @@ import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Loader } from '../common/Loader';
+import { SectionExplainerSkeleton } from '../common/SkeletonLoader';
 import toast from 'react-hot-toast';
 import { aiEnhancedApi } from '../../api/aiEnhanced.api';
 
@@ -237,9 +238,7 @@ export const SectionExplainerCard: React.FC<Props> = ({ defaultSection = '302', 
         </div>
 
         {loadingOptions && (
-          <div className="flex items-center justify-center py-8">
-            <Loader />
-          </div>
+          <SectionExplainerSkeleton />
         )}
 
         {!loadingOptions && details && (
